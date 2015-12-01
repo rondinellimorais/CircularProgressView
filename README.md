@@ -1,4 +1,4 @@
-# CircleProgressView
+# CircularProgressView
 
 
 Simple Circular Progress View
