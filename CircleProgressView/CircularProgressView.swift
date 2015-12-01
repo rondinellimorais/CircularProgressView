@@ -1,6 +1,6 @@
 //
 //  CircularProgressView.swift
-//  CircleProgressView
+//  CircularProgressView
 //
 //  Created by Rondinelli Morais on 30/11/15.
 //  Copyright © 2015 Rondinelli Morais. All rights reserved.
