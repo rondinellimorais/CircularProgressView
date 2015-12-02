@@ -50,26 +50,36 @@ class ProgressLabel : UILabel {
     
     private func animationLabelBaseValue(baseValue:CGFloat, executeBlock:((value:CGFloat) -> Void)?) {
         
+        var startTime:NSTimeInterval = NSDate().timeIntervalSince1970
+        var seconds:NSTimeInterval = 0.0
         var value:CGFloat = 0.0
-        var timerUpdateLabel:CADisplayLink? = nil
+        var invalidate = false
         
-        let animaLabel = NSBlockOperation { () -> Void in
+        print("startTime: \(startTime)")
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), { () -> Void in
             
-            value += ( baseValue / 100.0 );
-            if value >= baseValue {
-                value = baseValue
-                timerUpdateLabel!.invalidate()
-                timerUpdateLabel = nil
+            for ;; {
+                
+                seconds = (NSDate().timeIntervalSince1970 - startTime)
+                
+                if seconds >= 0.001 {
+
+                    startTime = NSDate().timeIntervalSince1970
+                    
+                    value += ( baseValue / 100.0 )
+                    
+                    invalidate = (value >= baseValue)
+                    
+                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                        if executeBlock != nil {
+                            executeBlock!(value: value)
+                        }
+                    })
+                    
+                    if invalidate { break }
+                }
             }
-            
-            if executeBlock != nil {
-                executeBlock!(value: value)
-            }
-        }
-        
-        timerUpdateLabel = CADisplayLink(target: animaLabel, selector: "main")
-        timerUpdateLabel!.frameInterval = 1
-        timerUpdateLabel!.addToRunLoop(NSRunLoop.currentRunLoop(), forMode: NSRunLoopCommonModes)
+        })
     }
 }
 
@@ -77,7 +87,7 @@ class CircularProgressView: UIView {
     
     var padding:CGFloat = 20.0
     
-    var animate:Bool = false
+    //var animate:Bool = false
     
     var progress: CGFloat {
         get {
@@ -93,24 +103,24 @@ class CircularProgressView: UIView {
                 mainArcLayer.strokeEnd = newValue
             }
             
-            if animate {
-                let animation = CABasicAnimation(keyPath: "strokeEnd")
-                animation.fromValue = 0
-                animation.toValue = newValue
-                animation.duration = 0.5
-                animation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseOut)
-                animation.removedOnCompletion = true
-                
-                mainArcLayer.removeAnimationForKey(animation.keyPath!)
-                mainArcLayer.addAnimation(animation, forKey: animation.keyPath!)
-            }
+//            if animate {
+//                let animation = CABasicAnimation(keyPath: "strokeEnd")
+//                animation.fromValue = 0
+//                animation.toValue = newValue
+//                animation.duration = 0.1
+//                animation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseOut)
+//                animation.removedOnCompletion = true
+//                
+//                mainArcLayer.removeAnimationForKey(animation.keyPath!)
+//                mainArcLayer.addAnimation(animation, forKey: animation.keyPath!)
+//            }
         }
     }
     
     var textLabel:ProgressLabel? = nil
 
     // --------------------------------------------------------
-    // MARK: Main Layer
+    // MARK: Placeholder Layer
     // --------------------------------------------------------
     
     private var placeholderArcLayer = CAShapeLayer()

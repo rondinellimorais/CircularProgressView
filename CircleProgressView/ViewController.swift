@@ -81,9 +81,6 @@ class ViewController: UIViewController {
         let ratedVolume = CGFloat( arc4random_uniform(1024) * 10 )
         
         self.circularProgressView.progress = (ratedVolume / freeUnits)
-        
-        print(self.circularProgressView.progress)
-        
         self.circularProgressView.textLabel!.value = NSNumber(float:Float(ratedVolume))
     }
 }
